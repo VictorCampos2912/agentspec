@@ -8,19 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Linear Project Manager agent for issue tracking and milestone planning
-- The Planner agent for strategic architecture and roadmap creation
-- 12 slash commands (up from 11)
+- Complete documentation overhaul: getting-started, concepts, tutorials, reference guides
 - Linear as project source of truth (60 issues, 6 milestones, 9 project documents)
 
 ### Changed
 
-- Agent count corrected to 16: 6 workflow, 4 code-quality, 4 communication, 2 exploration
 - KB domains cleaned — removed project-specific domains, kept framework scaffolding
 - Agent prompts sanitized — removed all project-specific references
 - `concept.md.template` section renamed from "The Pattern" to "The Concept"
 - `test-case.json.template` now documents valid type values
 - CLAUDE.md updated with current project status and active tasks
+- README, CONTRIBUTING, SECURITY, CHANGELOG rewritten for public release
 
 ### Removed
 

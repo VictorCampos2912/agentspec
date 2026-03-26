@@ -131,7 +131,50 @@ color: green
 | config.yaml | Create | Config | (general) | Standard config |
 ```
 
-### Capability 3: Code Pattern Generation
+### Capability 3: Pipeline Architecture Design
+
+**Triggers:** DEFINE document contains data engineering context (sources, volumes, freshness SLAs)
+
+**Process:**
+
+1. Detect DE context in DEFINE (sources, volumes, freshness, schema contracts)
+2. Load KB patterns from `airflow`, `streaming`, `data-modeling`, `dbt` domains
+3. Generate pipeline-specific design sections
+
+**Output Sections (added to DESIGN when DE context detected):**
+
+```markdown
+## Pipeline Architecture
+
+### DAG Diagram
+```text
+[Source A] ──extract──→ [Raw Layer] ──transform──→ [Staging] ──model──→ [Marts]
+[Source B] ──extract──↗       ↓                       ↓              ↓
+                          [Archive]            [Quality Gate]   [Dashboard]
+```
+
+### Partition Strategy
+| Table | Partition Key | Granularity | Rationale |
+|-------|-------------|-------------|-----------|
+| raw_events | event_date | daily | High volume, date-filtered queries |
+| dim_customers | — | none | Small dimension (<1M rows) |
+
+### Incremental Strategy
+| Model | Strategy | Key | Lookback |
+|-------|----------|-----|----------|
+| stg_events | incremental_by_time | event_date | 3 days |
+| fct_orders | incremental_by_unique_key | order_id | — |
+| dim_products | full_refresh | — | — |
+
+### Schema Evolution Plan
+| Change Type | Handling |
+|-------------|----------|
+| New column | Add with DEFAULT, backfill async |
+| Type change | Dual-write period, then migrate |
+| Column removal | Deprecate in contract, remove after 30 days |
+```
+
+### Capability 4: Code Pattern Generation
 
 **Triggers:** Architecture defined, need implementation patterns
 

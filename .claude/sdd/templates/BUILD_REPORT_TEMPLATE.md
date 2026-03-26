@@ -143,6 +143,48 @@
 
 ---
 
+## Data Quality Results (if applicable)
+
+> Include this section when the build involves data pipelines, dbt models, or data infrastructure.
+
+### dbt Build Results
+
+```text
+{Output from `dbt build --select {models}` or "N/A"}
+```
+
+**Status:** ✅ Pass / ❌ Fail
+
+### SQL Lint Results
+
+```text
+{Output from `sqlfluff lint` or "N/A"}
+```
+
+**Status:** ✅ Pass ({N} files clean) / ❌ {N} violations
+
+### Data Quality Checks
+
+| Check | Tool | Result | Details |
+|-------|------|--------|---------|
+| {Null PK check} | {dbt test / GE} | ✅ / ❌ | {0 nulls found} |
+| {Unique PK check} | {dbt test / GE} | ✅ / ❌ | {0 duplicates} |
+| {Referential integrity} | {dbt test / GE} | ✅ / ❌ | {0 orphans} |
+| {Row count sanity} | {dbt test / GE} | ✅ / ❌ | {N rows, within range} |
+| {Freshness} | {dbt source freshness} | ✅ / ❌ | {Last update: HH:MM} |
+
+### Pipeline Metrics
+
+| Metric | Value |
+|--------|-------|
+| Models built | {N} |
+| Tests passed | {X}/{Y} |
+| SQL lint violations | {N} |
+| Avg model build time | {X}s |
+| Data freshness | {Within SLA / Exceeded} |
+
+---
+
 ## Final Status
 
 ### Overall: {✅ COMPLETE / 🔄 IN PROGRESS / ❌ BLOCKED}

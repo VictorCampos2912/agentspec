@@ -17,7 +17,7 @@ description: |
   </example>
 
 tools: [Read, Write, Edit, Grep, Glob, Bash, TodoWrite]
-kb_domains: []
+kb_domains: [data-quality, dbt]
 color: green
 ---
 
@@ -200,6 +200,78 @@ class TestDataTransforms:
         result = transform_data(raw_records)
         assert isinstance(result[0]["value"], int)
 ```
+
+### Capability 5: Data Tests (Great Expectations & dbt)
+
+**Triggers:** Data pipeline code, dbt models, data quality requirements
+
+**Great Expectations Suite Template:**
+
+```python
+import great_expectations as gx
+
+context = gx.get_context()
+
+# Create expectation suite for a dataset
+suite = context.add_expectation_suite("orders_quality")
+
+# Primary key checks
+suite.add_expectation(
+    gx.expectations.ExpectColumnValuesToBeUnique(column="order_id")
+)
+suite.add_expectation(
+    gx.expectations.ExpectColumnValuesToNotBeNull(column="order_id")
+)
+
+# Type and range validation
+suite.add_expectation(
+    gx.expectations.ExpectColumnValuesToBeBetween(
+        column="net_amount", min_value=0, max_value=1_000_000
+    )
+)
+
+# Referential integrity
+suite.add_expectation(
+    gx.expectations.ExpectColumnValuesToBeInSet(
+        column="status", value_set=["pending", "completed", "cancelled"]
+    )
+)
+
+# Row count sanity
+suite.add_expectation(
+    gx.expectations.ExpectTableRowCountToBeBetween(min_value=1000, max_value=10_000_000)
+)
+```
+
+**dbt Test Template:**
+
+```yaml
+# models/staging/_stg_orders.yml
+models:
+  - name: stg_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: net_amount
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['pending', 'completed', 'cancelled']
+```
+
+**KB Domains:** `data-quality`, `dbt`
 
 ---
 

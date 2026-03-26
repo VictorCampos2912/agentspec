@@ -157,6 +157,45 @@ mypy {file}
 pytest {test_file} -v
 ```
 
+### Capability 4: Data Engineering Verification
+
+**Triggers:** DESIGN contains pipeline architecture, dbt models, SQL files, or Spark jobs
+
+**Process:**
+
+1. Detect DE artifacts in DESIGN (dbt models, SQL files, DAGs, Spark jobs)
+2. Run DE-specific verification tools
+3. Delegate to DE agents as specified in manifest
+
+**DE Verification Commands:**
+
+```bash
+# dbt models
+dbt build --select {model_name}
+dbt test --select {model_name}
+
+# SQL linting
+sqlfluff lint {sql_file} --dialect {dialect}
+sqlfluff fix {sql_file} --dialect {dialect}
+
+# Great Expectations
+great_expectations suite run {suite_name}
+
+# Spark (syntax check)
+python -c "from pyspark.sql import SparkSession; exec(open('{file}').read())"
+```
+
+**DE Agent Delegation Map:**
+
+| File Type | Delegate To |
+|-----------|-------------|
+| `models/**/*.sql` (dbt) | `dbt-specialist` |
+| `dags/**/*.py` (Airflow) | `pipeline-architect` |
+| `jobs/**/*.py` (PySpark) | `spark-engineer` |
+| `contracts/**/*.yaml` | `data-contracts-engineer` |
+| `tests/data/**/*.py` (GE) | `data-quality-analyst` |
+| `schemas/**/*.sql` | `schema-designer` |
+
 ---
 
 ## Quality Gate

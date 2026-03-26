@@ -5,7 +5,7 @@
 
 version: "1.0.0"
 name: "AgentSpec"
-description: "5-phase software development workflow with agent orchestration"
+description: "5-phase spec-driven development workflow with agent orchestration for software and data engineering"
 
 # =============================================================================
 # WORKFLOW OVERVIEW
@@ -449,6 +449,20 @@ build:
     - self_documenting_names
     - config_over_hardcode
 
+  data_engineering_delegation:
+    description: "When DESIGN contains pipeline architecture, Build delegates to DE agents"
+    agent_map:
+      dbt_models: "dbt-specialist"
+      airflow_dags: "pipeline-architect"
+      spark_jobs: "spark-engineer"
+      data_contracts: "data-contracts-engineer"
+      quality_checks: "data-quality-analyst"
+      schema_design: "schema-designer"
+    de_verification:
+      - "dbt build --select {model}"
+      - "sqlfluff lint {file} --dialect {dialect}"
+      - "great_expectations suite run {suite}"
+
   anti_patterns:
     - improvising: "Creating files not in manifest"
     - skipping_verify: "Not testing after creation"
@@ -785,6 +799,20 @@ quality:
     - ascii_diagrams_for_architecture
     - version_history_maintained
 
+  data_engineering_quality_gate:
+    sql_lint: "sqlfluff lint passes (0 violations)"
+    dbt_tests: "All unique + not_null on PKs, relationships on FKs"
+    data_freshness: "Source freshness within SLA"
+    schema_contract: "No breaking changes without deprecation"
+    pii_check: "All PII columns tagged and masked in non-prod"
+
+  data_anti_patterns:
+    - select_star: "SELECT * in production models — expand to explicit columns"
+    - implicit_coercion: "Implicit type coercion in joins — cast explicitly"
+    - missing_partition_filter: "Query without partition filter on large table — always filter"
+    - hardcoded_dates: "Hardcoded dates in SQL — use parameters or macros"
+    - no_incremental_strategy: "Full refresh on large tables — use incremental where possible"
+
   process:
     - phase_gates_enforced
     - all_artifacts_linked
@@ -801,6 +829,6 @@ version_history:
     changes:
       - "Public release as AgentSpec v1.0.0"
       - "Initial public release with 5-phase workflow and agent orchestration"
-      - "16 core agents across 4 categories"
+      - "27 agents across 5 categories (16 core + 11 data engineering)"
       - "Extensible KB domain system"
 

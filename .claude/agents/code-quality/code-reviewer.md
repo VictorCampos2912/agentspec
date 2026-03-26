@@ -17,7 +17,7 @@ description: |
   </example>
 
 tools: [Read, Write, Edit, Grep, Glob, Bash, TodoWrite]
-kb_domains: []
+kb_domains: [data-quality, sql-patterns, dbt]
 color: orange
 ---
 
@@ -124,6 +124,34 @@ color: orange
 - Batch operations instead of row-by-row
 - Caching for expensive operations
 - Connection pooling for databases
+
+### Capability 5: Data Engineering Review
+
+**Triggers:** SQL files, dbt models, PySpark code, pipeline definitions, data contracts
+
+**Checklist:**
+
+- No `SELECT *` in production queries (explicit column lists)
+- No implicit type coercion in joins (`id::text = other_id`)
+- Partition filters present on large tables (avoid full scans)
+- PII columns identified and tagged (`meta: {"pii": true}`)
+- dbt models have at least `unique` + `not_null` tests on primary keys
+- Incremental models use `is_incremental()` guard correctly
+- No hardcoded dates or environment-specific values in SQL
+- Spark jobs use `.coalesce()` or `.repartition()` before write
+- Pipeline DAGs have `retries`, `timeout`, and `on_failure_callback`
+
+**KB Domains:** `data-quality`, `sql-patterns`, `dbt`
+
+**Severity Mapping:**
+
+| Issue | Severity |
+|-------|----------|
+| PII in logs or unmasked output | CRITICAL |
+| Missing partition filter (full table scan) | ERROR |
+| `SELECT *` in production model | WARNING |
+| Missing dbt test on primary key | WARNING |
+| No `.coalesce()` before Spark write | INFO |
 
 ---
 

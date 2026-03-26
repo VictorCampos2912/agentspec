@@ -1,6 +1,6 @@
 # Getting Started with AgentSpec
 
-Get from zero to your first spec-driven feature in 10 minutes.
+Get from zero to your first spec-driven data pipeline in 10 minutes.
 
 ## Prerequisites
 
@@ -33,84 +33,104 @@ The SDD directory structure is already set up:
 
 ```text
 your-project/.claude/
-├── agents/         # 16 specialized agents (ready to use)
-├── commands/       # 12 slash commands (ready to use)
+├── agents/              # 27 specialized agents (ready to use)
+├── commands/            # 20 slash commands (ready to use)
 ├── sdd/
-│   ├── features/   # Your active feature documents go here
-│   ├── reports/    # Build reports land here
-│   └── archive/    # Shipped features archived here
-└── kb/             # Add domain knowledge here
+│   ├── features/        # Your active feature documents go here
+│   ├── reports/         # Build reports land here
+│   └── archive/         # Shipped features archived here
+└── kb/                  # 11 data engineering KB domains (ready to use)
 ```
 
-## Your First Feature (5 minutes)
+## Your First Data Pipeline (5 minutes)
 
-Let's build a user authentication feature using the full SDD workflow.
+Let's build an orders pipeline using the full SDD workflow.
 
 ### Step 1: Brainstorm (Optional)
 
 Explore your idea through guided dialogue:
 
 ```bash
-claude> /brainstorm "I want to add user authentication with JWT"
+claude> /brainstorm "Daily orders pipeline from Postgres to Snowflake with star schema"
 ```
 
-AgentSpec asks targeted questions, compares approaches, and helps you scope the work. Output: `BRAINSTORM_USER_AUTH.md`
+AgentSpec asks targeted questions about source systems, volumes, freshness SLAs, and consumer needs. Output: `BRAINSTORM_ORDERS_PIPELINE.md`
 
 ### Step 2: Define Requirements
 
-Capture formal requirements with a clarity score:
+Capture formal requirements with data contracts:
 
 ```bash
-claude> /define USER_AUTH
+claude> /define ORDERS_PIPELINE
 ```
 
-Output: `DEFINE_USER_AUTH.md` with:
+Output: `DEFINE_ORDERS_PIPELINE.md` with:
 
 - Problem statement and users
-- Functional and non-functional requirements
-- Acceptance criteria (Given/When/Then)
+- Data contract (schema, SLAs, lineage)
+- Source inventory (volumes, freshness)
 - Clarity Score (must reach 12/15 to proceed)
 
 ### Step 3: Design Architecture
 
-Create the technical architecture:
+Create the pipeline architecture:
 
 ```bash
-claude> /design USER_AUTH
+claude> /design ORDERS_PIPELINE
 ```
 
-Output: `DESIGN_USER_AUTH.md` with:
+Output: `DESIGN_ORDERS_PIPELINE.md` with:
 
-- Architecture diagram
-- File manifest with agent assignments
-- Key decisions (inline ADRs)
-- Code patterns (copy-paste ready)
+- Architecture diagram with DAG structure
+- Partition strategy and incremental approach
+- File manifest with agent assignments (dbt-specialist, pipeline-architect)
+- Schema evolution plan
+- Data quality gates
 
 ### Step 4: Build
 
-Execute the implementation with agent matching:
+Execute the implementation with agent delegation:
 
 ```bash
-claude> /build USER_AUTH
+claude> /build ORDERS_PIPELINE
 ```
 
-AgentSpec reads the DESIGN, matches specialized agents to each task, builds the code, and verifies it. Output: `BUILD_REPORT_USER_AUTH.md`
+AgentSpec delegates dbt models to `dbt-specialist`, DAGs to `pipeline-architect`, and quality checks to `data-quality-analyst`. Verification includes `dbt build`, `sqlfluff lint`, and data quality assertions. Output: `BUILD_REPORT_ORDERS_PIPELINE.md`
 
 ### Step 5: Ship
 
 Archive everything with lessons learned:
 
 ```bash
-claude> /ship USER_AUTH
+claude> /ship ORDERS_PIPELINE
 ```
 
-Moves all artifacts to `.claude/sdd/archive/USER_AUTH/` with a SHIPPED document capturing what worked, what didn't, and recommendations.
+## Quick Data Engineering Commands
+
+Don't need the full SDD workflow? Use commands directly:
+
+```bash
+# Design a star schema
+claude> /schema "Star schema for e-commerce analytics"
+
+# Scaffold an Airflow DAG
+claude> /pipeline "Daily orders ETL from Postgres to Snowflake"
+
+# Generate quality checks for a model
+claude> /data-quality models/staging/stg_orders.sql
+
+# Review SQL for anti-patterns
+claude> /sql-review models/marts/
+
+# Migrate legacy stored procedures
+claude> /migrate legacy/etl_orders_proc.sql
+```
 
 ## What's Next
 
 - [Core Concepts](../concepts/) — understand how phases, agents, and KB work together
-- [Tutorials](../tutorials/) — step-by-step walkthroughs for common workflows
-- [Reference](../reference/) — full command and agent catalog
+- [Tutorials](../tutorials/) — dbt, star schema, data quality, Spark, streaming, RAG walkthroughs
+- [Reference](../reference/) — full command, agent, and KB domain catalog
 
 ## Troubleshooting
 
@@ -121,4 +141,7 @@ Ensure `.claude/commands/` exists in your project root with the slash command fi
 Check that `.claude/agents/` contains the agent `.md` files. Agents are discovered via glob pattern.
 
 **Clarity score too low?**
-The `/define` phase requires 12/15 to proceed. Add more detail to Problem, Users, Goals, Success criteria, and Scope sections.
+The `/define` phase requires 12/15 to proceed. For data pipelines, ensure Source Inventory, Schema Contract, and Freshness SLAs are populated.
+
+**KB domain not loading?**
+Check `.claude/kb/_index.yaml` — the domain must be registered there. All 11 DE domains come pre-configured.

@@ -725,24 +725,6 @@ Would you like me to research further or proceed with caveats?
 Which approach aligns better with your team's workflow?
 ```
 
-### Low Confidence (< threshold - 0.10)
-
-```markdown
-**Confidence:** {score} — Below threshold for this project management task.
-
-**What I can do:**
-{partial plan with clear scope}
-
-**What I need to clarify:**
-- {requirement 1}
-- {constraint 1}
-
-Would you like me to:
-1. Proceed with stated assumptions
-2. Set up a minimal project structure
-3. Focus on a specific area (issues, milestones, sprints)
-```
-
 ---
 
 ## Knowledge Sources
@@ -900,7 +882,7 @@ Step 6: VERIFY
 WRONG:  save_milestone(name: "M1", project: "My Project v1 Launch")
         → "Project not found" error
 
-RIGHT:  save_milestone(name: "M1", project: "e28299f9-f06f-47d4-8d54-f9863c0188ea")
+RIGHT:  save_milestone(name: "M1", project: "<your-project-uuid>")
         → Success
 ```
 
@@ -991,7 +973,7 @@ After document creation:
 WRONG:  save_milestone(name: "M1: Foundation", project: "My Project")
         → "Project not found"
 
-RIGHT:  save_milestone(name: "M1: Foundation", project: "e28299f9-...")
+RIGHT:  save_milestone(name: "M1: Foundation", project: "<your-project-uuid>")
         → Success
 ```
 

@@ -105,7 +105,54 @@ color: blue
 - **KB Domains** → Design phase pulls correct patterns
 - **IaC Impact** → Catches infrastructure needs early
 
-### Capability 3: Clarity Scoring
+### Capability 3: Data Engineering Context Extraction
+
+**Triggers:** Requirements mention data pipelines, ETL, analytics, warehouses, data sources
+
+**Process:**
+
+1. Detect DE keywords in input (pipeline, ETL, warehouse, data quality, schema, etc.)
+2. Extract DE-specific entities using patterns below
+3. Add "Data Engineering Context" section to DEFINE output
+
+**Entity Extraction Patterns:**
+
+| Entity | Look For |
+|--------|----------|
+| Source Systems | "from Postgres...", "Kafka topic...", "S3 bucket...", "API endpoint..." |
+| Volumes | "~1M rows/day", "500GB total", "10K events/sec" |
+| Freshness SLAs | "within 15 minutes", "daily by 6am UTC", "real-time" |
+| Completeness Metrics | "99.9% of records", "no nulls in PK", "all sources present" |
+| Schema Contracts | "order_id is INT", "status ENUM", "amount DECIMAL(18,2)" |
+| Source Inventory | "3 Postgres tables + 1 Kafka topic + S3 clickstream" |
+
+**Output Section:**
+
+```markdown
+## Data Engineering Context
+
+### Source Inventory
+| Source | Type | Volume | Freshness |
+|--------|------|--------|-----------|
+| orders_db | Postgres | ~500K rows/day | 15-min CDC |
+| clickstream | Kafka | ~10M events/day | Real-time |
+| products | S3 CSV | ~50K rows (static) | Daily upload |
+
+### Freshness SLAs
+- Staging layer: within 30 minutes of source change
+- Mart layer: refreshed daily by 06:00 UTC
+
+### Schema Contracts
+- `order_id`: INT, NOT NULL, UNIQUE (primary key)
+- `net_amount`: DECIMAL(18,2), >= 0
+- `status`: ENUM('pending', 'completed', 'cancelled')
+
+### Completeness Metrics
+- 99.9% of source records present in staging within SLA
+- Zero null primary keys across all models
+```
+
+### Capability 4: Clarity Scoring
 
 **Triggers:** All requirements extracted, ready to score
 

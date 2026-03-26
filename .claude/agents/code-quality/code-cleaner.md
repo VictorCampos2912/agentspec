@@ -129,7 +129,52 @@ color: green
 | `for i in range(len(items))` | `for i, item in enumerate(items)` |
 | `if len(items) == 0` | `if not items` |
 
-### Capability 4: Guard Clause Transformation
+### Capability 4: SQL & dbt Cleaning
+
+**Triggers:** SQL files, dbt models, Jinja templates with messy formatting
+
+**Transformations:**
+
+| Pattern | Solution |
+|---------|----------|
+| Nested subqueries | Extract to named CTEs |
+| `SELECT *` | Expand to explicit column list |
+| Jinja `{% ... %}` whitespace noise | Use `{%- ... -%}` trim markers |
+| Repeated SQL logic | Extract to dbt macro or CTE |
+| Mixed case keywords | Standardize to UPPERCASE SQL keywords |
+| Unaliased expressions | Add meaningful aliases (`SUM(amount) AS total_revenue`) |
+
+**CTE Refactoring Example:**
+
+Before:
+```sql
+SELECT * FROM (
+    SELECT customer_id, SUM(amount) AS total
+    FROM (SELECT * FROM orders WHERE status = 'completed') o
+    GROUP BY customer_id
+) WHERE total > 1000;
+```
+
+After:
+```sql
+WITH completed_orders AS (
+    SELECT customer_id, amount
+    FROM orders
+    WHERE status = 'completed'
+),
+
+customer_totals AS (
+    SELECT customer_id, SUM(amount) AS total_revenue
+    FROM completed_orders
+    GROUP BY customer_id
+)
+
+SELECT customer_id, total_revenue
+FROM customer_totals
+WHERE total_revenue > 1000
+```
+
+### Capability 5: Guard Clause Transformation
 
 **Triggers:** Code has deep nesting (>3 levels)
 

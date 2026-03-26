@@ -326,7 +326,7 @@ git add .
 
 ## Configuration
 
-Respects `.coderabbit.yaml` settings:
+Optionally respects `.coderabbit.yaml` settings (create this file if needed):
 
 | Setting | Effect |
 |---------|--------|
@@ -391,5 +391,5 @@ Comparing: HEAD vs develop
 ## Related
 
 - Agent: `.claude/agents/code-quality/code-reviewer.md`
-- Config: `.coderabbit.yaml`
+- Config: `.coderabbit.yaml` (optional, create if needed)
 - Create PR: `.claude/commands/workflow/create-pr.md`

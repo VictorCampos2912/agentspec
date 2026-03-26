@@ -202,6 +202,48 @@
 
 ---
 
+## Pipeline Architecture (if applicable)
+
+> Include this section when the feature involves data pipelines, ETL, or analytics.
+
+### DAG Diagram
+
+```text
+[Source A] ──extract──→ [Raw Layer] ──transform──→ [Staging] ──model──→ [Marts]
+[Source B] ──extract──↗       ↓                       ↓              ↓
+                          [Archive]            [Quality Gate]   [Dashboard]
+```
+
+### Partition Strategy
+
+| Table | Partition Key | Granularity | Rationale |
+|-------|-------------|-------------|-----------|
+| {table_1} | {column} | {daily / monthly} | {Query patterns, volume} |
+
+### Incremental Strategy
+
+| Model | Strategy | Key Column | Lookback |
+|-------|----------|------------|----------|
+| {model_1} | {incremental_by_time / unique_key / full_refresh} | {column} | {N days} |
+
+### Schema Evolution Plan
+
+| Change Type | Handling | Rollback |
+|-------------|----------|----------|
+| New column | {Add with DEFAULT, backfill async} | {Drop column} |
+| Type change | {Dual-write period, then migrate} | {Revert type} |
+| Column removal | {Deprecate in contract, remove after N days} | {Re-add column} |
+
+### Data Quality Gates
+
+| Gate | Tool | Threshold | Action on Failure |
+|------|------|-----------|-------------------|
+| {Null check on PKs} | {dbt test / GE} | {0 nulls} | {Block pipeline} |
+| {Row count delta} | {dbt test / GE} | {<10% variance} | {Alert + continue} |
+| {Freshness check} | {dbt source freshness} | {< N hours} | {Alert} |
+
+---
+
 ## Revision History
 
 | Version | Date | Author | Changes |

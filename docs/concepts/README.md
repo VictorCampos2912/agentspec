@@ -1,29 +1,31 @@
 # Core Concepts
 
-Understanding the mental model behind Spec-Driven Development.
+Understanding the mental model behind Spec-Driven Development for Data Engineering.
 
 ## The Problem
 
-AI-assisted development without structure leads to:
+Data engineering with AI assistants without structure leads to:
 
-- **Lost decisions** — requirements discussed but never captured
-- **Spec drift** — implementation diverges from intent
-- **Repeated mistakes** — no institutional memory between sessions
-- **No audit trail** — can't trace why something was built a certain way
+- **Lost decisions** — pipeline requirements discussed but never captured
+- **Spec drift** — implementation diverges from data contracts
+- **Repeated mistakes** — no institutional memory about partition strategies or SCD choices
+- **No audit trail** — can't trace why a schema was modeled a certain way
+- **Inconsistent quality** — hallucinated SQL, missing tests, wrong freshness SLAs
 
 ## The SDD Mental Model
 
 AgentSpec solves this with a **5-phase pipeline** where each phase produces a traceable artifact:
 
 ```text
-  Idea                                                    Shipped Feature
+  Idea                                                    Shipped Pipeline
    │                                                            ▲
    ▼                                                            │
 ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────┐   ┌──────────┐
 │BRAINSTORM│──▶│  DEFINE  │──▶│  DESIGN  │──▶│BUILD │──▶│   SHIP   │
-│ explore  │   │ capture  │   │architect │   │execute│   │ archive  │
+│ explore  │   │ contract │   │ pipeline │   │execute│   │ archive  │
 └──────────┘   └──────────┘   └──────────┘   └──────┘   └──────────┘
-  Optional      Score≥12/15    Manifest+ADRs   Agents     Lessons
+  Data Flow     Schema SLAs    DAG + Parts   dbt build    Lessons
+  Sketch        Freshness      Incremental   sqlfluff     Learned
 ```
 
 **Each arrow is a quality gate.** You can't proceed without meeting measurable criteria.
@@ -32,74 +34,81 @@ AgentSpec solves this with a **5-phase pipeline** where each phase produces a tr
 
 ### 1. Phases (the workflow)
 
-Five phases that structure how features move from idea to production:
+Five phases that structure how data pipelines move from idea to production:
 
-| Phase          | What Happens                       | Quality Gate                     |
-|----------------|------------------------------------|---------------------------------:|
-| **Brainstorm** | Explore approaches, ask questions  | Min 3 questions, 2+ approaches   |
-| **Define**     | Capture requirements formally      | Clarity Score >= 12/15           |
-| **Design**     | Create architecture, assign agents | Complete manifest, ADRs          |
-| **Build**      | Execute implementation with agents | All tests pass                   |
-| **Ship**       | Archive with lessons learned       | Acceptance tests verified        |
+| Phase | What Happens | Quality Gate |
+|-------|-------------|-------------|
+| **Brainstorm** | Explore approaches, data flow sketches, volume estimates | Min 3 questions, 2+ approaches |
+| **Define** | Capture requirements + data contracts, SLAs, source inventory | Clarity Score >= 12/15 |
+| **Design** | Pipeline architecture, DAG, partitions, incremental strategy | Complete manifest, ADRs, schema plan |
+| **Build** | Execute with dbt build, sqlfluff lint, GE suites | All tests + quality gates pass |
+| **Ship** | Archive with lessons learned | Acceptance tests verified |
 
 Brainstorm is optional. You can start directly with `/define` if requirements are clear.
 
 ### 2. Agents (the specialists)
 
-16 specialized agents, each with a specific domain:
+27 specialized agents, each with a specific domain:
 
-| Category          | Count | What They Do                                     |
-|-------------------|-------|--------------------------------------------------|
-| **Workflow**      | 6     | Drive each SDD phase (brainstorm through ship)   |
-| **Code Quality**  | 4     | Review, clean, document, and test code           |
-| **Communication** | 4     | Explain, plan, manage projects, analyze meetings |
-| **Exploration**   | 2     | Navigate codebases and manage knowledge bases    |
+| Category | Count | What They Do |
+|----------|-------|-------------|
+| **Workflow** | 6 | Drive each SDD phase (brainstorm through ship) |
+| **Code Quality** | 4 | Review (DE-aware), clean (SQL/dbt), document, and test (GE/dbt) code |
+| **Data Engineering** | 11 | dbt, Spark, Airflow, schema design, SQL optimization, streaming, lakehouse, data quality, AI/ML data, platform engineering, data contracts |
+| **Communication** | 4 | Explain, plan, manage projects, analyze meetings |
+| **Exploration** | 2 | Navigate codebases and manage knowledge bases |
 
-During `/build`, the design-agent scans `.claude/agents/**/*.md` and matches agents to tasks based on the DESIGN file manifest. Each task gets the best-fit specialist.
+During `/build`, the build-agent delegates to DE specialists: dbt models go to `dbt-specialist`, Spark jobs to `spark-engineer`, quality checks to `data-quality-analyst`, and pipeline DAGs to `pipeline-architect`.
 
 ### 3. Knowledge Base (the memory)
 
-KB domains ground agent responses in verified patterns instead of hallucinated ones:
+11 KB domains ground agent responses in verified patterns instead of hallucinated SQL:
 
-```text
-.claude/kb/
-├── _templates/          # Templates for creating domains
-├── _index.yaml          # Domain registry
-└── your-domain/         # Your custom domain
-    ├── index.md         # Overview
-    ├── quick-reference.md  # Cheat sheet
-    ├── concepts/        # Core concepts (max 150 lines each)
-    └── patterns/        # Implementation patterns (max 200 lines each)
-```
+| Domain | Topics |
+|--------|--------|
+| `dbt` | Models, macros, incremental, testing |
+| `spark` | PySpark, Spark SQL, performance tuning |
+| `sql-patterns` | Window functions, CTEs, anti-patterns |
+| `airflow` | DAGs, operators, sensors, dynamic mapping |
+| `streaming` | Flink, Kafka, Spark Streaming, CDC |
+| `data-modeling` | Star schema, Data Vault, SCD, normalization |
+| `data-quality` | Great Expectations, Soda, data contracts |
+| `lakehouse` | Iceberg, Delta Lake, catalogs |
+| `cloud-platforms` | Snowflake, Databricks, BigQuery |
+| `ai-data-engineering` | RAG, vector DBs, feature stores, LLMOps |
+| `modern-stack` | DuckDB, Polars, SQLMesh, local-first analytics |
 
-Create a domain with `/create-kb redis` and agents will consult it during `/design` and `/build`.
+Create additional domains with `/create-kb <domain>` and agents will consult them during `/design` and `/build`.
 
 ## How Phases Connect
 
 Context flows forward through the pipeline:
 
-1. **BRAINSTORM** explores approaches, produces draft requirements
-2. **DEFINE** formalizes those into scored requirements with acceptance tests
-3. **DESIGN** reads DEFINE, creates architecture + file manifest + agent assignments
-4. **BUILD** reads DESIGN, delegates tasks to matched agents, verifies results
+1. **BRAINSTORM** explores approaches, captures data flow sketches and volume estimates
+2. **DEFINE** formalizes those into scored requirements with data contracts and SLAs
+3. **DESIGN** reads DEFINE, creates pipeline architecture + DAG + partition strategy + agent assignments
+4. **BUILD** reads DESIGN, delegates to DE agents, verifies with dbt build + sqlfluff + GE
 5. **SHIP** reads BUILD_REPORT, archives everything with lessons learned
 
 If requirements change mid-stream, use `/iterate` to update any phase document with automatic cascade detection.
 
 ## When to Use Each Phase
 
-| Situation                           | Start With     |
-|-------------------------------------|----------------|
-| Vague idea, need to explore         | `/brainstorm`  |
-| Clear requirements, ready to spec   | `/define`      |
-| Small bug fix or tweak              | Direct coding  |
-| Requirements changed after design   | `/iterate`     |
-| Feature complete, ready to archive  | `/ship`        |
+| Situation | Start With |
+|-----------|-----------|
+| Vague idea, need to explore data sources | `/brainstorm` |
+| Clear pipeline requirements, ready to spec | `/define` |
+| Quick schema design or quality check | `/schema`, `/data-quality` |
+| Need a DAG scaffold quickly | `/pipeline` |
+| Requirements changed after design | `/iterate` |
+| Feature complete, ready to archive | `/ship` |
 
 ## Key Design Decisions
 
 - **YAML contracts** enforce phase transitions (not human discipline)
-- **Clarity scoring** prevents vague specs from reaching design
-- **Agent matching** is automatic, not manual assignment
-- **Lessons learned** are structured, not freeform — they feed future decisions
+- **Data contracts** in DEFINE prevent schema drift between producer and consumer
+- **Pipeline architecture** in DESIGN captures DAGs, partitions, and incremental strategies
+- **DE quality gates** in BUILD run dbt tests, sqlfluff, and GE suites
+- **Agent matching** is automatic — dbt models go to dbt-specialist, Spark jobs to spark-engineer
 - **KB domains** have line limits to stay focused and maintainable
+- **Lessons learned** are structured, not freeform — they feed future decisions

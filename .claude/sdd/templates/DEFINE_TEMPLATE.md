@@ -105,6 +105,36 @@ Explicitly NOT included in this feature:
 
 ---
 
+## Data Contract (if applicable)
+
+> Include this section when the feature involves data pipelines, ETL, or analytics.
+
+### Source Inventory
+| Source | Type | Volume | Freshness | Owner |
+|--------|------|--------|-----------|-------|
+| {source_1} | {Postgres / Kafka / S3 / API} | {~rows/day} | {SLA} | {Team} |
+
+### Schema Contract
+| Column | Type | Constraints | PII? |
+|--------|------|-------------|------|
+| {column_1} | {INT / VARCHAR / DECIMAL} | {NOT NULL, UNIQUE} | {Yes/No} |
+
+### Freshness SLAs
+| Layer | Target | Measurement |
+|-------|--------|-------------|
+| Raw / Staging | {Within X minutes of source change} | {Timestamp comparison} |
+| Marts | {Refreshed by HH:MM UTC daily} | {DAG completion time} |
+
+### Completeness Metrics
+- {e.g., 99.9% of source records present within SLA}
+- {e.g., Zero null primary keys across all models}
+
+### Lineage Requirements
+- {e.g., Column-level lineage from source to mart}
+- {e.g., Impact analysis before schema changes}
+
+---
+
 ## Assumptions
 
 Assumptions that if wrong could invalidate the design:

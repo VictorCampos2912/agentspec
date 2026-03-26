@@ -108,6 +108,29 @@
 
 ---
 
+## Data Engineering Context (if applicable)
+
+> Include this section when the feature involves data pipelines, ETL, analytics, or data infrastructure.
+
+### Source Systems
+| Source | Type | Volume Estimate | Current Freshness |
+|--------|------|-----------------|-------------------|
+| {Source 1} | {Postgres / Kafka / S3 / API} | {~rows/day or GB} | {Real-time / Daily / Unknown} |
+
+### Data Flow Sketch
+```text
+[Source A] → [Ingestion] → [Raw] → [Transform] → [Mart] → [Consumer]
+```
+
+### Key Data Questions Explored
+| # | Question | Answer | Impact |
+|---|----------|--------|--------|
+| 1 | What's the expected data volume? | {Answer} | {Affects tool choice} |
+| 2 | What freshness SLA is needed? | {Answer} | {Batch vs streaming} |
+| 3 | Who consumes the output? | {Answer} | {Modeling approach} |
+
+---
+
 ## Selected Approach
 
 | Attribute | Value |
